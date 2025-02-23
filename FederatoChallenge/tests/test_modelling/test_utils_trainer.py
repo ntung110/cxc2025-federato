@@ -1,7 +1,7 @@
 import unittest
 import polars as pl
 from xgboost import XGBRegressor, XGBClassifier
-from modelling import Dataloader, Trainer
+from utils.modelling import Dataloader, Trainer
 
 class TestTrainer(unittest.TestCase):
     

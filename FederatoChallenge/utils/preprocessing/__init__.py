@@ -1,2 +1,2 @@
-from FederatoChallenge.utils.preprocessing.data import *
-from FederatoChallenge.utils.preprocessing.functions import *
+from utils.preprocessing.data import *
+from utils.preprocessing.functions import *

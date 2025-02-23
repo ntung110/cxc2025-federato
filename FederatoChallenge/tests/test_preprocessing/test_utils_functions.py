@@ -1,7 +1,7 @@
 import unittest
 import polars as pl
 from polars.testing import assert_frame_equal
-from preprocessing import *
+from utils.preprocessing import *
 
 
 class TestDropColumns(unittest.TestCase):

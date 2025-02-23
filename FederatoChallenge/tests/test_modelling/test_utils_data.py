@@ -1,7 +1,7 @@
 import unittest
 import polars as pl
 from datetime import datetime
-from modelling import Dataloader, TrainValidationSplit, TimeSplit
+from utils.modelling import Dataloader, TrainValidationSplit, TimeSplit
 
 class TestDataloader(unittest.TestCase):
     
