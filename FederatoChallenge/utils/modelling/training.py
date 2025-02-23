@@ -1,6 +1,6 @@
 
 from xgboost import XGBRegressor, XGBClassifier
-from modelling.utils.data import Dataloader
+from FederatoChallenge.utils.modelling.data import Dataloader
 
 
 class Trainer:
