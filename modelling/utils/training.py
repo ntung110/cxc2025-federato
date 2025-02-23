@@ -30,5 +30,3 @@ class Trainer:
             else:
                 self.model.fit(X, y, xgb_model = self.model.get_booster())
         return self.model
-
-def
