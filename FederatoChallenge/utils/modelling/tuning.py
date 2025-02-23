@@ -52,7 +52,7 @@ class HyperparameterObjective:
             for name, attr in config.items():
 
                 # Get variables from config
-                suggest_vartype = f'suggest_{attr['type']}'
+                suggest_vartype = f"suggest_{attr['type']}"
                 suggest_params = attr['params']
 
                 # Suggest corresponding value and save to model_params

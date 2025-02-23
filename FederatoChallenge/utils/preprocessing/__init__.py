@@ -1,2 +1,2 @@
-from utils.preprocessing.data import *
-from utils.preprocessing.functions import *
+from data import *
+from functions import *

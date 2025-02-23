@@ -1,6 +1,6 @@
 
 from xgboost import XGBRegressor, XGBClassifier
-from FederatoChallenge.utils.modelling.data import Dataloader
+from data import Dataloader
 
 
 class Trainer:
@@ -11,7 +11,7 @@ class Trainer:
     def fit(self, X, y, params):
 
         # Initialize and train model
-        self.model = self.model_cls(params, eval_set = ())
+        self.model = self.model_cls(**params)
         self.fit(X, y)
         return self.model
 
@@ -19,7 +19,7 @@ class Trainer:
         
         # Initialize model
         not_trained = True
-        self.model = self.model_cls(params)
+        self.model = self.model_cls(**params)
 
         # Initialize dataloader and train by batch
         self.dataloader.fit(X, y)

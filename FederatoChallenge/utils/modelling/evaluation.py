@@ -1,13 +1,13 @@
 import polars as pl
 from sklearn.metrics import (confusion_matrix, roc_curve, roc_auc_score, precision_recall_curve, r2_score, 
 								mean_squared_error, mean_absolute_error, accuracy_score, f1_score, median_absolute_error)
-from sklearn.model_selection import train_test_split, learn
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Union, Tuple, List, Optional
 import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
-from modelling import Dataloader
+from data import Dataloader
 
 
 class Evaluation:
