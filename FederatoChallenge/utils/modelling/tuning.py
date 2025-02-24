@@ -2,8 +2,6 @@ from collections.abc import Callable
 from optuna.samplers import TPESampler
 import optuna
 
-
-
 class Optimizer:
 
     """ Optimizer is class used for optimizing an Optuna objective"""

@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 import polars as pl
 from collections.abc import Callable
+from utils.preprocessing import *
 
 
 def setup_logging(log_path):
@@ -35,19 +36,19 @@ def batch_preprocess_data(df : pl.DataFrame, func : Callable,
         return df
     
     # Get path for data input and output
-    input_path = config['pipeline']['input_path']
-    output_path = config['pipeline']['output_path']
+    input_path = os.path.expanduser(config['pipeline']['input_path'])
+    output_path = os.path.expanduser(config['pipeline']['output_path'])
 
     # Sequentially apply function to chunks of data and export them 
     for idx in range(0, df.shape[0], chunk_size):
         df_chunk = df[idx : min(df.shape[0], idx + chunk_size)]
         df_chunk = func(df_chunk, config)
-        df_chunk.write_parquet(f'df_{idx}.parquet')
+        df_chunk.write_parquet(output_path + f'df_{idx}.parquet')
     del df_chunk
 
     # Load chunk again and start concatenating
     df_combined = None
-    for file in _file_sort(os.listdir(config['pipeline']['output_path'])):
+    for file in _file_sort(os.listdir(output_path)):
         if 'df' not in file:
             continue
         df_chunk = pl.read_parquet(output_path + file)

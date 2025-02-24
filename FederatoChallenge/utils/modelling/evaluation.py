@@ -7,7 +7,6 @@ import seaborn as sns
 from typing import Union, Tuple, List, Optional
 import xgboost as xgb
 from sklearn.preprocessing import LabelEncoder
-from data import Dataloader
 
 
 class Evaluation:

@@ -1,0 +1,92 @@
+pipeline:
+  input_path: "~/Desktop/data/"
+  output_path: "~/Desktop/data/"
+  input_data: "~/Desktop/data/data.parquet"
+  output_data: "~/Desktop/data/processed_data.parquet"
+  log_path: "/Desktop/data/log"
+
+
+preprocessing_pipeline:
+
+  batch_preprocess_data:
+    enabled: true
+
+  lowercase_all_values:
+    enabled: true
+    
+  replace_with_null:
+    enabled: true
+    params:
+      null_vals: ['none', 'empty']
+
+  custom_enforce_types:
+    enabled: true
+    params:
+      per_column:
+        int: ['amplitude_id', 'app', 'event_id', 'session_id']
+        float: []
+        string: []
+        datetime: ["client_event_time", "client_upload_time", "event_time", 
+                    "processed_time", "server_received_time", "server_upload_time"]
+        
+  drop_columns:
+    enabled: true
+    params:
+      columns_0: ['partner_id', 'location_lat', '$insert_key', 'user_creation_time', 'paying', 'data', 
+                'device_brand', 'amplitude_attribution_ids', 'plan', 'adid', '__index_level_0__', 'device_carrier', 
+                'location_lng', 'idfa', 'device_manufacturer', 'version_name', 'platform', 'source_id', 'group_properties', 
+                'data_type', 'sample_rate', 'global_user_properties', 'device_type', 'amplitude_event_type', 'is_attribution_event', 
+                'device_model', '$schema', 'start_version', 'groups', 'os_version', 'uuid']
+
+      columns_1: ['event_properties', 'user_properties', 'event_id', 'app', 'city',
+                  'language', 'amplitude_id', '$insert_id', 'device_id', 'os_name']
+
+      columns_2: ['processed_time_max', 'device_family_chromium os_max', 'device_family_k_max', 'server_upload_time_max', 'device_family_chrome os_max', 
+                  'client_upload_time_max', 'event_category_filtering & searching_max', 'event_category_null_max', 'device_family_apple iphone_max', 
+                  'server_received_time_max', 'device_family_apple ipad_max', 'processed_hour_mean', 'client_event_time_max', 'federato_max', 
+                  'device_family_ubuntu_max', 'event_time_max', 'device_family_google nexus phone_max', 'device_family_mac_max', 
+                  'device_family_ios_max', 'uw-portal_max', 'event_category_document & report interactions_max', 'device_family_android_max']
+    
+  
+  fill_missing_values:
+    enabled: true
+    params:
+      strategy: "mean"  # 'available options': "mean", "median", "mode", "constant", ‘forward’, ‘backward’, ‘min’, ‘max’, ‘zero’
+      constant_value: null  # use only if strategy = "constant"
+  
+  encode_categorical:
+    enabled: true
+    params:
+      method: "one_hot"  # 'available options': "one_hot", "label", "ordinal"
+      drop_first: false  # if using one-hot encoding, drop first category to avoid collinearity
+      include_cols: ["device_family", "event_category", "region_grouped"]
+
+  scale_features:
+    enabled: true
+    params:
+      method:  # 'available options': apply different scalers to different columns
+        minmax: ["features name"]
+        standard: ["features name"]
+        robust: ["features name"]
+  
+  handle_outliers:
+    enabled: true
+    params:
+      method: "iqr"  # 'available options': "z-score", "iqr", "winsorization"
+      threshold: 3  # Z-score threshold, ignored if using IQR
+      per_column:  # optional: Different methods for different columns
+        feature_1: "z-score"
+        feature_2: "winsorization"
+
+  expand_dict_columns:
+    enabled : true
+    params:
+      dict_cols: ['user_properties', 'event_properties']
+      include_cols:
+        user_properties: ['roles', 'isInternalUser', 'referrer']
+        event_properties: ['slug']
+
+saving:
+  save_processed_data: true
+  save_pipeline_state: true
+  artifact_path: "artifacts/"

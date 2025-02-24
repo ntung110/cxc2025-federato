@@ -1,6 +1,5 @@
 
 from xgboost import XGBRegressor, XGBClassifier
-from data import Dataloader
 
 
 class Trainer:
@@ -12,7 +11,7 @@ class Trainer:
 
         # Initialize and train model
         self.model = self.model_cls(**params)
-        self.fit(X, y)
+        self.model.fit(X, y)
         return self.model
 
     def fit_batch(self, X, y, params):

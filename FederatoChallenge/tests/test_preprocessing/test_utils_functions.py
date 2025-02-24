@@ -662,6 +662,98 @@ class TestCustomEnforceTypes(unittest.TestCase):
         self.assertEqual(result.schema["birthday"], pl.Datetime)
 
 
+class TestMapValues(unittest.TestCase):
+
+    def setUp(self):
+        """Set up a base DataFrame for testing."""
+        self.df = pl.DataFrame({"category": ["A", "B", "C", "D"]})
+
+    def test_map_values_enabled(self):
+        """Test if mapping correctly replaces values."""
+        config = {
+            "preprocessing_pipeline": {
+                "map_values": {
+                    "enabled": True,
+                    "params": {
+                        "category": {
+                            "Group 1": ["A", "B"],
+                            "Group 2": ["C"]
+                        }
+                    }
+                }
+            }
+        }
+        expected = pl.DataFrame({"category": ["Group 1", "Group 1", "Group 2", "D"]})
+        result = map_values(self.df, config)
+
+        self.assertTrue(result.frame_equal(expected))
+
+    def test_map_values_with_else(self):
+        """Test if mapping replaces unmapped values with 'Else' value."""
+        config = {
+            "preprocessing_pipeline": {
+                "map_values": {
+                    "enabled": True,
+                    "params": {
+                        "category": {
+                            "Group 1": ["A", "B"],
+                            "Group 2": ["C"],
+                            "Else": "Other"
+                        }
+                    }
+                }
+            }
+        }
+        expected = pl.DataFrame({"category": ["Group 1", "Group 1", "Group 2", "Other"]})
+        result = map_values(self.df, config)
+
+        self.assertTrue(result.frame_equal(expected))
+
+    def test_map_values_disabled(self):
+        """Test that function returns the same DataFrame when disabled."""
+        config = {
+            "preprocessing_pipeline": {
+                "map_values": {
+                    "enabled": False,  # Disabled
+                    "params": {
+                        "category": {
+                            "Group 1": ["A", "B"],
+                            "Group 2": ["C"],
+                        }
+                    }
+                }
+            }
+        }
+        result = map_values(self.df, config)
+
+        self.assertTrue(result.frame_equal(self.df))  # Should be unchanged
+
+    def test_map_values_missing_column(self):
+        """Test handling when a column in the config is missing from DataFrame."""
+        df = pl.DataFrame({"another_column": ["X", "Y", "Z"]})  # No 'category' column
+
+        config = {
+            "preprocessing_pipeline": {
+                "map_values": {
+                    "enabled": True,
+                    "params": {
+                        "category": {
+                            "Group 1": ["A", "B"],
+                            "Group 2": ["C"],
+                        }
+                    }
+                }
+            }
+        }
+
+        result = map_values(df, config)
+
+        self.assertTrue(result.frame_equal(df))  # Should be unchanged
+
+if __name__ == "__main__":
+    unittest.main()
+
+
 
 if __name__ == '__main__':
     unittest.main(argv=[''], exit=False)

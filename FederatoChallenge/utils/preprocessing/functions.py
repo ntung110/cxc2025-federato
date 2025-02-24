@@ -9,10 +9,10 @@ from pathlib import Path
 from collections.abc import Callable
 
 
-def drop_columns(df: pl.DataFrame, config: dict) -> pl.DataFrame:
+def drop_columns(df: pl.DataFrame, config: dict, run : int = 0) -> pl.DataFrame:
     if config["preprocessing_pipeline"]["drop_columns"]["enabled"]:
         params = config["preprocessing_pipeline"]["drop_columns"]["params"]
-        columns_to_drop = params["columns"]
+        columns_to_drop = params[f"columns_{run}"]
         df = df.drop(columns_to_drop)
     return df
 
@@ -33,18 +33,17 @@ def replace_with_null(df : pl.DataFrame, config : dict) -> pl.DataFrame:
 
 
 def encode_categorical(df: pl.DataFrame, config: dict) -> pl.DataFrame:
-    if not config.get("Preprocessing_pipeline", {}).get("encode_categorical", {}).get("enabled", False):
+    if not config["preprocessing_pipeline"]["encode_categorical"]["enabled"]:
         return df
 
     if df.is_empty():
         return df
 
-    params = config["Preprocessing_pipeline"]["encode_categorical"]["params"]
+    params = config["preprocessing_pipeline"]["encode_categorical"]["params"]
     method = params.get("method", "one_hot")
     drop_first = params.get("drop_first", False)
 
-    categorical_cols = [col for col in df.columns if df[col].dtype == pl.String]
-
+    categorical_cols = config["preprocessing_pipeline"]["encode_categorical"]["params"]["include_cols"]
     if not categorical_cols: 
         return df
 
@@ -209,10 +208,14 @@ def custom_enforce_types(df : pl.DataFrame, config : dict) -> pl.DataFrame:
     feature_groups = config['preprocessing_pipeline']['custom_enforce_types']['params']['per_column']
 
     # Process columns
-    df = df.with_columns(pl.col(c).cast(pl.Int64) for c in feature_groups['int'])
-    df = df.with_columns(pl.col(c).cast(pl.Float64) for c in feature_groups['float'])
-    df = df.with_columns(pl.col(c).cast(pl.String) for c in feature_groups['string'])
-    df = df.with_columns(pl.col(c).str.to_datetime() for c in feature_groups['datetime'])
+    if len(feature_groups['int']) != 0:
+        df = df.with_columns(pl.col(c).cast(pl.Int64) for c in feature_groups['int'])
+    if len(feature_groups['float']) != 0:
+        df = df.with_columns(pl.col(c).cast(pl.Float64) for c in feature_groups['float'])
+    if len(feature_groups['string']) != 0:
+        df = df.with_columns(pl.col(c).cast(pl.String) for c in feature_groups['string'])
+    if len(feature_groups['datetime']) != 0:
+        df = df.with_columns(pl.col(c).str.to_datetime() for c in feature_groups['datetime'])
     return df
 
 
@@ -261,3 +264,4 @@ def expand_dict_columns(df, config):
             .map_elements(lambda x : _custom_literal_eval(x, include_cols_dict[col]), return_dtype = struct_schema)
             .alias('struct')).unnest('struct')
     return df
+
