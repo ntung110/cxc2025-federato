@@ -18,24 +18,24 @@ class Evaluation:
         Initialize with a model
         """
         self.model = model
-        
+       
     def plot_feature_importance(self, X, y):
         ax = xgb.plot_importance(self.model)
         plt.show()
         return ax
 
 
-class ClassificationEvaluation:
+class ClassificationEvaluation(Evaluation):
     """
     ClassificationEvaluation is an evaluation framework for classification models.
     """
     def __init__(self, model):
         self.model = model
-    
+   
     def get_classification_metrics(self, X, y):
         y_pred_proba = self.model.predict_proba(X)[:, 1]
         y_pred = self.model.predict(X)
-        
+       
         clf_metrics = {
             'Accuracy': accuracy_score(y, y_pred),
             'F1': f1_score(y, y_pred),
@@ -45,9 +45,9 @@ class ClassificationEvaluation:
 
         for name, score in clf_metrics.items():
             print(f'{name}:\n{score}')
-        
+       
         # return clf_metrics
-    
+   
     def plot_roc_curve(self, X, y):
         y_pred_proba = self.model.predict_proba(X)[:, 1]
         fpr, tpr, _ = roc_curve(y, y_pred_proba)
@@ -60,7 +60,7 @@ class ClassificationEvaluation:
         results = self.model.evals_result()
         epochs = len(results['validation_0']['logloss'])
         x_axis = range(0, epochs)
-    
+   
         plt.figure(figsize=(6, 6))
         plt.plot(x_axis, results['validation_0']['logloss'], label='Train')
         plt.plot(x_axis, results['validation_1']['logloss'], label='Validation')
@@ -72,13 +72,13 @@ class ClassificationEvaluation:
 
 
 class RegressionEvaluation(Evaluation):
-    """ 
-    RegressionEvaluation is an evaluation framework for regression models 
+    """
+    RegressionEvaluation is an evaluation framework for regression models
     which outputs the relevant metrics and figures for analysis.
     """
     def __init__(self, model):
         super().__init__(model)
-    
+   
     def get_regression_metrics(self, X, y):
         y_pred = self.model.predict(X)
         reg_metrics = {
@@ -95,7 +95,7 @@ class RegressionEvaluation(Evaluation):
         results = self.model.evals_result()
         epochs = len(results['validation_0']['rmse'])
         x_axis = range(0, epochs)
-    
+   
         plt.figure(figsize=(6, 6))
         plt.plot(x_axis, results['validation_0']['rmse'], label='Train')
         plt.plot(x_axis, results['validation_1']['rmse'], label='Validation')

@@ -14,10 +14,10 @@ class Dataloader:
         self.len = len(self.y)
 
     def __iter__(self):
-        return self 
-    
+        return self
+   
     def __next__(self):
-        
+       
         if self._index >= self.len:
             raise StopIteration
 
@@ -52,9 +52,9 @@ class TrainValidationSplit:
 
     def data_split(self, df):
 
-        # Split train and validation sets 
+        # Split train and validation sets
         df = df.sample(fraction = 1, shuffle = True)
-        val_num_rows = int(self.val_ratio * df.shape[0])       
+        val_num_rows = int(self.val_ratio * df.shape[0])      
         df_val, df_train = df.head(val_num_rows), df.tail(-val_num_rows)
 
         return df_train, df_val
@@ -75,8 +75,10 @@ class TimeSplit:
 
     def data_split(self, df, time_col):
         # Split test data by time cutoff
-        parsed_time_cutoff = pl.lit(self.time_cutoff).str.to_datetime()
+        # df = df.with_columns(
+        #     pl.col(time_col).str.to_datetime(format="%Y-%m-%d %H:%M:%S%.f")
+        # )        
+        parsed_time_cutoff = pl.lit(self.time_cutoff).str.to_datetime(format="%Y-%m-%d") 
         df_test = df.filter(pl.col(time_col) > parsed_time_cutoff)
-        df_leftover = df.filter(~(pl.col(time_col) > parsed_time_cutoff))
+        df_leftover = df.filter(pl.col(time_col) <= parsed_time_cutoff)
         return df_test, df_leftover
-    
