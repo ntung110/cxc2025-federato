@@ -1,12 +1,16 @@
 import polars as pl
 from sklearn.metrics import (confusion_matrix, roc_curve, roc_auc_score, precision_recall_curve, r2_score, 
 								mean_squared_error, mean_absolute_error, accuracy_score, f1_score, median_absolute_error)
+
+from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Union, Tuple, List, Optional
 import xgboost as xgb
-from sklearn.preprocessing import LabelEncoder
+import numpy as np
+import pandas as pd
+
 
 
 class Evaluation:
@@ -19,11 +23,49 @@ class Evaluation:
         """
         self.model = model
        
-    def plot_feature_importance(self, X, y):
+    def plot_xgb_feature_importance(self):
         ax = xgb.plot_importance(self.model)
         plt.show()
         return ax
+    
+    def get_shuffling_feature_importance(model, X, y):
+        """
+        Calculate shuffling feature importance for a given model and test set using RMSE.
 
+        Parameters:
+            model (object): Trained model with a predict method.
+            X_test (pd.DataFrame): Test features.
+            y_test (pd.Series or np.array): True labels.
+
+        Returns:
+            pd.DataFrame: Feature importance sorted by descending importance.
+        """
+        # Calculate the baseline performance using RMSE
+        baseline = np.sqrt(mean_squared_error(y, model.predict(X)))
+
+        importances = {}
+
+        # Iterate over each feature to shuffle
+        for col in X.columns:
+            X_shuffled = X.copy()
+            X_shuffled[col] = np.random.permutation(X_shuffled[col])  # Shuffle the column
+
+        # Measure performance after shuffling
+        shuffled_rmse = np.sqrt(mean_squared_error(y, model.predict(X_shuffled)))
+
+        # Calculate the increase in RMSE (higher = more important)
+        importances[col] = shuffled_rmse - baseline
+
+        # Convert to DataFrame and sort by importance
+        importance_df = pd.DataFrame.from_dict(importances, orient='index', columns=['Importance'])
+        importance_df = importance_df.sort_values(by='Importance', ascending=False)
+
+        return importance_df
+
+    def get_random_val_feature_importance(self, X, y):
+
+        random_columns = np.random.aran
+        
 
 class ClassificationEvaluation(Evaluation):
     """

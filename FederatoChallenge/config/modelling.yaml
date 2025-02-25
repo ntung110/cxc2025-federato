@@ -1,0 +1,4 @@
+pipeline:
+  input_data: "~/Desktop/data/preprocessed_data.parquet"
+  output_retention_model: "../models/xgb_classifier.pkl"
+  output_time_usage_model: "../models/xgb_regressor.pkl"

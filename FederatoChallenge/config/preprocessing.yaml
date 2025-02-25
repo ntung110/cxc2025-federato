@@ -2,7 +2,7 @@ pipeline:
   input_path: "~/Desktop/data/"
   output_path: "~/Desktop/data/"
   input_data: "~/Desktop/data/data.parquet"
-  output_data: "~/Desktop/data/processed_data.parquet"
+  output_data: "~/Desktop/data/preprocessed_data.parquet"
   log_path: "/Desktop/data/log"
 
 
@@ -45,7 +45,8 @@ preprocessing_pipeline:
                   'client_upload_time_max', 'event_category_filtering & searching_max', 'event_category_null_max', 'device_family_apple iphone_max', 
                   'server_received_time_max', 'device_family_apple ipad_max', 'processed_hour_mean', 'client_event_time_max', 'federato_max', 
                   'device_family_ubuntu_max', 'event_time_max', 'device_family_google nexus phone_max', 'device_family_mac_max', 
-                  'device_family_ios_max', 'uw-portal_max', 'event_category_document & report interactions_max', 'device_family_android_max']
+                  'device_family_ios_max', 'uw-portal_max', 'event_category_document & report interactions_max', 'device_family_android_max', 
+                  'client_event_datetime']
     
   
   fill_missing_values:

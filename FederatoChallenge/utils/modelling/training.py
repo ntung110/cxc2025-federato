@@ -23,12 +23,9 @@ class Trainer:
         # Initialize dataloader and train by batch
         self.dataloader.fit(X, y)
         for X_batch, y_batch in self.dataloader:
-            print("hheloo")
             if not_trained:
-                print("????")
                 self.model.fit(X_batch, y_batch)
                 not_trained = False
             else:
-                print("!!!!!")
                 self.model.fit(X_batch, y_batch, xgb_model = self.model.get_booster())
         return self.model
