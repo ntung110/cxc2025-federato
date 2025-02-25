@@ -24,48 +24,54 @@ class Evaluation:
         self.model = model
        
     def plot_xgb_feature_importance(self):
-        ax = xgb.plot_importance(self.model)
+        ax = xgb.plot_importance(self.model, show_values = False)
         plt.show()
         return ax
     
-    def get_shuffling_feature_importance(model, X, y):
-        """
-        Calculate shuffling feature importance for a given model and test set using RMSE.
+    
+    def shuffling_feature_importance(self, X, y):
+        y_array = y.to_numpy() if isinstance(y, pl.Series) else y
 
-        Parameters:
-            model (object): Trained model with a predict method.
-            X_test (pd.DataFrame): Test features.
-            y_test (pd.Series or np.array): True labels.
-
-        Returns:
-            pd.DataFrame: Feature importance sorted by descending importance.
-        """
         # Calculate the baseline performance using RMSE
-        baseline = np.sqrt(mean_squared_error(y, model.predict(X)))
+        baseline = np.sqrt(mean_squared_error(y_array, self.model.predict(X)))
 
         importances = {}
 
         # Iterate over each feature to shuffle
         for col in X.columns:
-            X_shuffled = X.copy()
-            X_shuffled[col] = np.random.permutation(X_shuffled[col])  # Shuffle the column
+            # Create a copy of X_test (Polars DataFrames are immutable, so we use with_columns)
+            X_shuffled = X.clone()
 
-        # Measure performance after shuffling
-        shuffled_rmse = np.sqrt(mean_squared_error(y, model.predict(X_shuffled)))
+            # Shuffle the column using numpy's permutation and replace it in the DataFrame
+            shuffled_values = np.random.permutation(X_shuffled[col].to_numpy())
+            X_shuffled = X_shuffled.with_columns(pl.Series(col, shuffled_values))
 
-        # Calculate the increase in RMSE (higher = more important)
-        importances[col] = shuffled_rmse - baseline
+            # Measure performance after shuffling
+            shuffled_rmse = np.sqrt(mean_squared_error(y_array, self.model.predict(X_shuffled)))
 
-        # Convert to DataFrame and sort by importance
-        importance_df = pd.DataFrame.from_dict(importances, orient='index', columns=['Importance'])
-        importance_df = importance_df.sort_values(by='Importance', ascending=False)
+            # Calculate the increase in RMSE (higher = more important)
+            importances[col] = shuffled_rmse - baseline
+
+            # Convert the importances dictionary to a Polars DataFrame
+        importance_df = pl.DataFrame({
+            "Feature": list(importances.keys()),
+            "Importance": list(importances.values())
+        })
+
+        importance_df = importance_df.sort("Importance", descending=True)
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(importance_df["Feature"], importance_df["Importance"], color='skyblue')
+        plt.xlabel("Features")
+        plt.ylabel("Importance (Increase in RMSE)")
+        plt.title("Shuffling Feature Importance")
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
+        plt.show()
 
         return importance_df
 
-    def get_random_val_feature_importance(self, X, y):
 
-        random_columns = np.random.aran
-        
 
 class ClassificationEvaluation(Evaluation):
     """
